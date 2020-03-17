@@ -187,4 +187,16 @@ public class TestNBCLIOptions {
 
     }
 
+    @Test
+    public void cqlIotYamlScenario() {
+        NBCLIOptions opts = new NBCLIOptions(new String[]{ "scenario-test" });
+        List<NBCLIOptions.Cmd> cmds = opts.getCommands();
+    }
+
+    @Test
+    public void cqlIotYamlScenarioSchemaOnly() {
+        NBCLIOptions opts = new NBCLIOptions(new String[]{ "scenario-test", "schema-only"});
+        List<NBCLIOptions.Cmd> cmds = opts.getCommands();
+    }
+
 }
