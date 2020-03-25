@@ -27,20 +27,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.nosqlbench</groupId>
-      <artifactId>engine-docker</artifactId>
-      <version>3.12.49-SNAPSHOT</version>
-      <classifier>shaded</classifier>
-    </dependency>
-
-    <!-- TODO: do we need this, if we're using shaded variant? -->
-    <dependency>
-      <groupId>io.nosqlbench</groupId>
-      <artifactId>engine-docker</artifactId>
-      <version>3.12.43-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <scope>test</scope>
@@ -63,6 +49,7 @@
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+
     <dependency>
       <groupId>io.nosqlbench</groupId>
       <artifactId>engine-docker</artifactId>
@@ -95,7 +82,7 @@
     <profile>
       <id>shade</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <build>
         <plugins>

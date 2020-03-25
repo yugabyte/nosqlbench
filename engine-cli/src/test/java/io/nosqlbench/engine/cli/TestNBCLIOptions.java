@@ -1,9 +1,15 @@
 package io.nosqlbench.engine.cli;
 
+import io.nosqlbench.docsys.core.PathWalker;
+import io.nosqlbench.virtdata.api.VirtDataResources;
 import org.testng.annotations.Test;
 
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,6 +66,9 @@ public class TestNBCLIOptions {
         assertThat(opts.wantsActivityTypes()).isTrue();
         opts = new NBCLIOptions(new String[]{"--version"});
         assertThat(opts.wantsActivityTypes()).isFalse();
+        opts = new NBCLIOptions(new String[]{"--list-drivers"});
+        assertThat(opts.wantsActivityTypes()).isTrue();
+        
     }
 
     @Test
@@ -123,7 +132,7 @@ public class TestNBCLIOptions {
 
     @Test
     public void shouldRecognizeStartActivityCmd() {
-        NBCLIOptions opts = new NBCLIOptions(new String[]{ "start", "type=woot" });
+        NBCLIOptions opts = new NBCLIOptions(new String[]{ "start", "driver=woot" });
         List<NBCLIOptions.Cmd> cmds = opts.getCommands();
         assertThat(cmds).hasSize(1);
         assertThat(cmds.get(0).getCmdType()).isEqualTo(NBCLIOptions.CmdType.start);
@@ -132,7 +141,7 @@ public class TestNBCLIOptions {
 
     @Test
     public void shouldRecognizeRunActivityCmd() {
-        NBCLIOptions opts = new NBCLIOptions(new String[]{ "run", "type=runwoot" });
+        NBCLIOptions opts = new NBCLIOptions(new String[]{ "run", "driver=runwoot" });
         List<NBCLIOptions.Cmd> cmds = opts.getCommands();
         assertThat(cmds).hasSize(1);
         assertThat(cmds.get(0).getCmdType()).isEqualTo(NBCLIOptions.CmdType.run);
@@ -187,16 +196,24 @@ public class TestNBCLIOptions {
 
     }
 
-    @Test
-    public void cqlIotYamlScenario() {
-        NBCLIOptions opts = new NBCLIOptions(new String[]{ "scenario-test" });
-        List<NBCLIOptions.Cmd> cmds = opts.getCommands();
-    }
 
     @Test
-    public void cqlIotYamlScenarioSchemaOnly() {
-        NBCLIOptions opts = new NBCLIOptions(new String[]{ "scenario-test", "schema-only"});
+    public void listWorkloads() {
+        NBCLIOptions opts = new NBCLIOptions(new String[]{ "--list-workloads"});
         List<NBCLIOptions.Cmd> cmds = opts.getCommands();
+        assertThat(opts.wantsWorkloads());
     }
+
+
+    @Test
+    public void clTest() {
+        String dir= "./";
+        URL resource = getClass().getClassLoader().getResource(dir);
+        assertThat(resource);
+        Path basePath = VirtDataResources.findPathIn(dir);
+        List<Path> yamlPathList = PathWalker.findAll(basePath).stream().filter(f -> f.toString().endsWith(".yaml")).collect(Collectors.toList());
+        assertThat(yamlPathList);
+    }
+
 
 }

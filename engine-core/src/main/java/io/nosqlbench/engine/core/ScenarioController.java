@@ -42,7 +42,7 @@ public class ScenarioController {
      * Start an activity, given the activity definition for it. The activity will be known in the scenario
      * by the alias parameter.
      *
-     * @param activityDef string in alias=value1;type=value2;... format
+     * @param activityDef string in alias=value1;driver=value2;... format
      */
     public synchronized void start(ActivityDef activityDef) {
         getActivityExecutor(activityDef, true).startActivity();
@@ -232,7 +232,7 @@ public class ScenarioController {
 
             if (executor == null && createIfMissing) {
 
-                String activityTypeName = activityDef.getParams().getOptionalString("type").orElse(null);
+                String activityTypeName = activityDef.getParams().getOptionalString("driver","type").orElse(null);
                 List<String> knownTypes = ActivityType.FINDER.getAll().stream().map(ActivityType::getName).collect(Collectors.toList());
 
                 // Infer the type from either alias or yaml if possible (exactly one matches)
@@ -240,7 +240,7 @@ public class ScenarioController {
                     List<String> matching = knownTypes.stream().filter(
                             n ->
                                     activityDef.getParams().getOptionalString("alias").orElse("").contains(n)
-                                            || activityDef.getParams().getOptionalString("yaml").orElse("").contains(n)
+                                            || activityDef.getParams().getOptionalString("yaml", "workload").orElse("").contains(n)
                     ).collect(Collectors.toList());
                     if (matching.size()==1) {
                         activityTypeName=matching.get(0);
@@ -249,8 +249,8 @@ public class ScenarioController {
                 }
 
                 if (activityTypeName==null) {
-                    String errmsg = "You must provide a type=<activity type> parameter. Valid examples are:\n" +
-                            knownTypes.stream().map(t -> " type="+t+"\n").collect(Collectors.joining());
+                    String errmsg = "You must provide a driver=<driver> parameter. Valid examples are:\n" +
+                            knownTypes.stream().map(t -> " driver="+t+"\n").collect(Collectors.joining());
                     throw new BasicError(errmsg);
                 }
 

@@ -100,7 +100,7 @@
       scm:git:https://github.com/nosqlbench/nosqlbench.git
     </developerConnection>
     <url>scm:git:git@github.com:nosqlbench/nosqlbench.git</url>
-    <tag>nosqlbench-2.0.102-SNAPSHOT</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>

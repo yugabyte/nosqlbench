@@ -5,6 +5,8 @@ import io.nosqlbench.engine.api.activityapi.cyclelog.outputs.cyclelog.CycleLogDu
 import io.nosqlbench.engine.api.activityapi.cyclelog.outputs.cyclelog.CycleLogImporterUtility;
 import io.nosqlbench.engine.api.activityapi.input.InputType;
 import io.nosqlbench.engine.api.activityapi.output.OutputType;
+import io.nosqlbench.engine.api.exceptions.BasicError;
+import io.nosqlbench.engine.api.util.NosqlBenchFiles;
 import io.nosqlbench.engine.core.MarkdownDocInfo;
 import io.nosqlbench.engine.core.ScenarioLogger;
 import io.nosqlbench.engine.core.ScenariosResults;
@@ -23,8 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NBCLI {
@@ -39,11 +40,22 @@ public class NBCLI {
     }
 
     public static void main(String[] args) {
-        NBCLI cli = new NBCLI("eb");
-        cli.run(args);
+        try {
+            NBCLI cli = new NBCLI("eb");
+            cli.run(args);
+        } catch (Exception e) {
+            if (e instanceof BasicError) {
+                System.out.println("ERROR: " + e.getMessage());
+                System.out.flush();
+                logger.error("ERROR: " + e.getMessage());
+                System.exit(2);
+            } else {
+                throw e;
+            }
+        }
     }
 
-    public void run(String[] args) { 
+    public void run(String[] args) {
         if (args.length>0 && args[0].toLowerCase().equals("virtdata")) {
             VirtDataMainApp.main(Arrays.copyOfRange(args,1,args.length));
             System.exit(0);
@@ -56,12 +68,7 @@ public class NBCLI {
         NBCLIOptions options = new NBCLIOptions(args);
 
         if (options.wantsBasicHelp()) {
-            System.out.println(loadHelpFile("commandline.md"));
-            System.exit(0);
-        }
-
-        if (options.wantsAdvancedHelp()) {
-            System.out.println(loadHelpFile("cli_scripting.md"));
+            System.out.println(loadHelpFile("basic.md"));
             System.exit(0);
         }
 
@@ -77,6 +84,11 @@ public class NBCLI {
 
         if (options.wantsActivityTypes()) {
             ActivityType.FINDER.getAll().stream().map(ActivityType::getName).forEach(System.out::println);
+            System.exit(0);
+        }
+
+        if (options.wantsWorkloads()) {
+            printWorkloads();
             System.exit(0);
         }
 
@@ -217,6 +229,32 @@ public class NBCLI {
         } else {
             System.exit(0);
         }
+    }
+
+    public void printWorkloads() {
+        List<NosqlBenchFiles.WorkloadDesc> workloads = NosqlBenchFiles.getWorkloadsWithScenarioScripts();
+        for (NosqlBenchFiles.WorkloadDesc workload : workloads) {
+            System.out.println("\n# from: "+ workload.getYamlPath());
+            List<String> scenarioList = workload.getScenarioNames();
+            String workloadName = workload.getYamlPath().replaceAll("\\.yaml", "") ;
+            Set<String> templates = workload.getTemlpates();
+
+            for (String scenario : scenarioList) {
+                if (scenario.equals("default")) {
+                    scenario = scenario +  " # same as running ./nb " + workloadName ;
+                }
+                System.out.println("  ./nb " + workloadName + " " + scenario);
+            }
+            if (templates.size()>0){
+                System.out.println("# with the following optional parameters and defaults: ");
+                templates.stream()
+                    .map(x -> x.replaceAll(",","="))
+                    .map(x -> x.replaceAll(":","="))
+                    .map(x -> " # "+x)
+                    .forEach(System.out::println);
+            }
+        }
+
     }
 
     private String loadHelpFile(String filename) {

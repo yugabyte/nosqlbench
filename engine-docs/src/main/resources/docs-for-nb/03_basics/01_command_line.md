@@ -3,6 +3,8 @@ title: NoSQLBench CLI Options
 weight: 01
 ---
 
+# The NoSQLBEnch Command Line
+
 This is the same documentation you get in markdown format with the
 `nb --help` command.
 
@@ -27,7 +29,7 @@ named argument to the previous command. The following example
 is a commandline with a command *start*, and two named arguments
 to that command.
 
-    ./nb start type=diag alias=example
+    ./nb start driver=diag alias=example
 
 ### Discovery options ###
 
@@ -45,7 +47,7 @@ Provide specific help for the named activity type:
 
 List the available activity types
 
-    --list-activity-types
+    --list-drivers
 
 Provide the metrics that are available for scripting
 

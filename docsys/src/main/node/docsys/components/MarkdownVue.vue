@@ -52,6 +52,14 @@
     content: '';
   }
 
+  pre {
+    padding: 5px;
+    margin: 0px 0px 10px 5px;
+  }
+  ul {
+    padding-bottom: 10px;
+  }
+
   code:after {
     content: '';
   }
@@ -60,6 +68,7 @@
   }
 
   .md-body {
+    padding-left: 10px;
     justify-content: left;
     align-items: left;
     text-align: left;
