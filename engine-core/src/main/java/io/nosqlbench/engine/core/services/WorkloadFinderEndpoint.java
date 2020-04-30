@@ -1,10 +1,12 @@
 package io.nosqlbench.engine.core.services;
 
 import io.nosqlbench.docsys.api.WebServiceObject;
+import io.nosqlbench.engine.api.activityapi.core.ParameterModel;
+import io.nosqlbench.engine.api.activityapi.core.ActivityType;
 import io.nosqlbench.engine.api.scenarios.NBCLIScenarioParser;
 import io.nosqlbench.engine.api.scenarios.WorkloadDesc;
+import io.nosqlbench.engine.api.util.SimpleServiceLoader;
 import io.nosqlbench.nb.api.annotations.Service;
-import io.nosqlbench.virtdata.userlibs.apps.docsapp.AutoDocsWebService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,16 +22,11 @@ import java.util.stream.Collectors;
 
 @Service(WebServiceObject.class)
 @Singleton
-@Path("/services/nb/")
+@Path("/services/find/")
 public class WorkloadFinderEndpoint implements WebServiceObject {
-    private final static Logger logger = LogManager.getLogger(AutoDocsWebService.class);
+    private final static Logger logger = LogManager.getLogger(WorkloadFinderEndpoint.class);
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("enabled")
-    public boolean isEnabled() {
-        return true;
-    }
+    public static SimpleServiceLoader<ActivityType> FINDER = new SimpleServiceLoader<>(ActivityType.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -39,10 +36,11 @@ public class WorkloadFinderEndpoint implements WebServiceObject {
 
         return workloads.stream().map(x -> x.getWorkloadName()).collect(Collectors.toList());
     }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("parameters")
-    public Map<String, String> getParametersByWorkload(@QueryParam("workloadName") String workloadName) {
+    @Path("templates")
+    public Map<String, String> getTemplatesByWorkload(@QueryParam("workloadName") String workloadName) {
         List<WorkloadDesc> workloads = NBCLIScenarioParser.getWorkloadsWithScenarioScripts();
 
         Map<String, String> templates = null;
@@ -54,5 +52,17 @@ public class WorkloadFinderEndpoint implements WebServiceObject {
 
         return templates;
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("parameters")
+    public List<ParameterModel> getParametersByDriver(@QueryParam("driverName") String driverName) {
+        List<ActivityType> drivers = FINDER.getAll();
+        ActivityType driver = drivers.stream().filter(at -> at.getName().equals(driverName)).findFirst().orElseThrow();
+        List<ParameterModel> parameterModels = driver.getParameters();
+
+        return parameterModels;
+    }
+
 
 }

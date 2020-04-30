@@ -27,6 +27,7 @@ import io.nosqlbench.engine.api.activityimpl.motor.CoreMotorDispenser;
 import io.nosqlbench.engine.api.util.Named;
 import io.nosqlbench.engine.api.util.SimpleServiceLoader;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -138,5 +139,5 @@ public interface ActivityType<A extends Activity> extends Named {
         return new CoreMotorDispenser<T> (activity, inputDispenser, actionDispenser, outputDispenser);
     }
 
-
+    List<ParameterModel> getParameters();
 }

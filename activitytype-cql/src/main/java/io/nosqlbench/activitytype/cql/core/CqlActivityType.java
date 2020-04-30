@@ -2,14 +2,18 @@ package io.nosqlbench.activitytype.cql.core;
 
 
 import io.nosqlbench.engine.api.activityapi.core.ActionDispenser;
+import io.nosqlbench.engine.api.activityapi.core.ParameterModel;
 import io.nosqlbench.engine.api.activityapi.core.ActivityType;
 import io.nosqlbench.engine.api.activityimpl.ActivityDef;
 import io.nosqlbench.nb.api.annotations.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service(ActivityType.class)
 public class CqlActivityType implements ActivityType<CqlActivity> {
+
+    private List<ParameterModel> parameterModels;
 
     public String getName() {
         return "cql";
@@ -30,7 +34,7 @@ public class CqlActivityType implements ActivityType<CqlActivity> {
             activityDef.getParams().set("alias",yaml.get());
         }
 
-        return new CqlActivity(activityDef);
+        return new CqlActivity(activityDef, parameterModels);
     }
 
     /**
@@ -41,6 +45,11 @@ public class CqlActivityType implements ActivityType<CqlActivity> {
     @Override
     public ActionDispenser getActionDispenser(CqlActivity activity) {
         return new CqlActionDispenser(activity);
+    }
+
+    @Override
+    public List<ParameterModel> getParameters() {
+        return parameterModels;
     }
 
 }

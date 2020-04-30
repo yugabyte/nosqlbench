@@ -20,6 +20,7 @@ import io.nosqlbench.activitytype.cql.statements.rsoperators.ResultSetCycleOpera
 import io.nosqlbench.activitytype.cql.statements.rsoperators.TraceLogger;
 import io.nosqlbench.engine.api.activityapi.core.Activity;
 import io.nosqlbench.engine.api.activityapi.core.ActivityDefObserver;
+import io.nosqlbench.engine.api.activityapi.core.ParameterModel;
 import io.nosqlbench.engine.api.activityapi.planning.OpSequence;
 import io.nosqlbench.engine.api.activityapi.planning.SequencePlanner;
 import io.nosqlbench.engine.api.activityapi.planning.SequencerType;
@@ -86,7 +87,7 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
     private String pooling;
 
 
-    public CqlActivity(ActivityDef activityDef) {
+    public CqlActivity(ActivityDef activityDef, List<ParameterModel> parameterModels) {
         super(activityDef);
         this.activityDef = activityDef;
         exceptionCountMetrics = new ExceptionCountMetrics(activityDef);

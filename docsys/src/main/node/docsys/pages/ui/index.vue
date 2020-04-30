@@ -87,8 +87,16 @@
         },
         methods: {
             async getTemplates() {
-                const data = await this.$axios.$get('/services/nb/parameters?workloadName=' + this.workloadName)
+                const data = await this.$axios.$get('/services/find/templates?workloadName=' + this.workloadName)
                 if (!data.err) {
+                    const driver = data.driver ? data.driver : data.type;
+                    this.$data.driver = driver;
+                    if(driver != undefined){
+                        const paramData = await this.$axios.$get('/services/find/parameters?driverName=' + driver)
+                        if (!paramData.err) {
+                            this.$data.templates = paramData;
+                        }
+                    }
                     this.$data.templates = data;
                 }
             },
@@ -99,18 +107,20 @@
                 enabled: false,
                 workloadName: null,
                 templates: null,
+                parameters: null,
+                driver: null
             };
             return data;
         },
         async asyncData({ $axios, store }) {
-          let enabled = await $axios.$get("/services/nb/enabled")
+          let enabled = await $axios.$get("/_/stats")
                     .then(res => {
-                        return res
+                        return true
                     })
                     .catch((e) => {
                         console.log("back-end not found");
                     })
-          let workloadNames = await $axios.$get("/services/nb/workloads")
+          let workloadNames = await $axios.$get("/services/find/workloads")
                     .then(res => {
                         return res
                     })
