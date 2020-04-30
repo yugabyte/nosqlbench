@@ -4,7 +4,7 @@
     <parent>
         <artifactId>mvn-defaults</artifactId>
         <groupId>io.nosqlbench</groupId>
-        <version>3.12.82-SNAPSHOT</version>
+        <version>3.12.94-SNAPSHOT</version>
         <relativePath>../mvn-defaults</relativePath>
     </parent>
 
@@ -22,13 +22,13 @@
         <dependency>
             <groupId>io.nosqlbench</groupId>
             <artifactId>virtdata-api</artifactId>
-            <version>3.12.82-SNAPSHOT</version>
+            <version>3.12.94-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>io.nosqlbench</groupId>
             <artifactId>virtdata-lib-basics</artifactId>
-            <version>3.12.82-SNAPSHOT</version>
+            <version>3.12.94-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -95,18 +95,15 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.commons.statistics</pattern>
-                                    <shadedPattern>io.nosqlbench.virtdata
-                                        .shaded.oac.statistics</shadedPattern>
+                                    <shadedPattern>io.nosqlbench.virtdata.shaded.oac.statistics</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons.math4.stat</pattern>
-                                    <shadedPattern>io.nosqlbench.virtdata
-                                        .shaded.oac.statistics</shadedPattern>
+                                    <shadedPattern>io.nosqlbench.virtdata.shaded.oac.statistics</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons.statistics.distribution</pattern>
-                                    <shadedPattern>io.nosqlbench.virtdata
-                                        .shaded.oac.statistics.distribution</shadedPattern>
+                                    <shadedPattern>io.nosqlbench.virtdata.shaded.oac.statistics.distribution</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

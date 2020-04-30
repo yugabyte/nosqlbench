@@ -5,6 +5,8 @@ import io.nosqlbench.engine.api.activityapi.core.ParameterModel;
 import io.nosqlbench.engine.api.activityapi.core.ActivityType;
 import io.nosqlbench.engine.api.scenarios.NBCLIScenarioParser;
 import io.nosqlbench.engine.api.scenarios.WorkloadDesc;
+import io.nosqlbench.nb.annotations.Service;
+import io.nosqlbench.virtdata.userlibs.apps.docsapp.AutoDocsWebService;
 import io.nosqlbench.engine.api.util.SimpleServiceLoader;
 import io.nosqlbench.nb.api.annotations.Service;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service(WebServiceObject.class)
 @Singleton
-@Path("/services/find/")
+@Path("/services/lookup/")
 public class WorkloadFinderEndpoint implements WebServiceObject {
     private final static Logger logger = LogManager.getLogger(WorkloadFinderEndpoint.class);
 

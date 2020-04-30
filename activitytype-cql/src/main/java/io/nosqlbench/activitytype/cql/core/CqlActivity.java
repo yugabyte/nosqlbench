@@ -39,7 +39,7 @@ import io.nosqlbench.engine.api.metrics.ActivityMetrics;
 import io.nosqlbench.engine.api.metrics.ExceptionCountMetrics;
 import io.nosqlbench.engine.api.metrics.ExceptionHistoMetrics;
 import io.nosqlbench.engine.api.util.SimpleConfig;
-import io.nosqlbench.engine.api.util.StrInterpolator;
+import io.nosqlbench.engine.api.templating.StrInterpolator;
 import io.nosqlbench.engine.api.util.TagFilter;
 import io.nosqlbench.engine.api.util.Unit;
 import org.slf4j.Logger;
@@ -134,6 +134,9 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
 
     private void initSequencer() {
 
+        Session session = getSession();
+        Map<String,Object> fconfig = Map.of("cluster",session.getCluster());
+
         SequencerType sequencerType = SequencerType.valueOf(
                 getParams().getOptionalString("seq").orElse("bucket")
         );
@@ -156,6 +159,7 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
 
             ParsedStmt parsed = stmtDef.getParsed().orError();
             boolean prepared = Boolean.valueOf(stmtDef.getParams().getOrDefault("prepared", "true"));
+            boolean parametrized = Boolean.valueOf(stmtDef.getParams().getOrDefault("parametrized", "false"));
             long ratio = Long.valueOf(stmtDef.getParams().getOrDefault("ratio", "1"));
 
             Optional<ConsistencyLevel> cl = Optional.ofNullable(
@@ -204,7 +208,8 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
                 CqlBinderTypes binderType = CqlBinderTypes.valueOf(stmtDef.getParams()
                         .getOrDefault("binder", CqlBinderTypes.DEFAULT.toString()));
 
-                template = new ReadyCQLStatementTemplate(binderType, getSession(), prepare, ratio, parsed.getName());
+                template = new ReadyCQLStatementTemplate(fconfig, binderType, getSession(), prepare, ratio,
+                    parsed.getName());
             } else {
                 SimpleStatement simpleStatement = new SimpleStatement(stmtForDriver);
                 cl.ifPresent((conlvl) -> {
@@ -219,7 +224,8 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
                     psummary.append(" idempotent=>").append(i);
                     simpleStatement.setIdempotent(i);
                 });
-                template = new ReadyCQLStatementTemplate(getSession(), simpleStatement, ratio, parsed.getName());
+                template = new ReadyCQLStatementTemplate(fconfig, getSession(), simpleStatement, ratio,
+                    parsed.getName(), parametrized);
             }
 
             Optional.ofNullable(stmtDef.getParams().getOrDefault("save", null))
