@@ -1,4 +1,6 @@
-- 5272aa49 (origin/main, main) test build reordering
-- This release represents the start of the nb3 maint branch.
-- Future updates to this branch will be limited to security and critical bug fixes
-- release trigger
+- 12186a15 (HEAD -> nb3-maint) backport improved build scripts to nb3-maint
+- 15e71ed9 (origin/nb3-maint) trigger maintenance release
+- 5c047bc2 enable maintenance releases in scripts
+- 132e6647 release sanitized nb3
+- b8450af7 update nb3 branch to pre-nb4 inclusions
+- 7ccc94ba fix activity run state bug
