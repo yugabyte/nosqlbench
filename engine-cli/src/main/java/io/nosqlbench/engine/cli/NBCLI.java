@@ -77,7 +77,8 @@ public class NBCLI {
             logger.info("Docker metrics is enabled. Docker must be installed for this to work");
             DockerMetricsManager dmh = new DockerMetricsManager();
             Map<String, String> dashboardOptions = Map.of(
-                DockerMetricsManager.GRAFANA_TAG, globalOptions.getDockerGrafanaTag()
+                DockerMetricsManager.GRAFANA_TAG, globalOptions.getDockerGrafanaTag(),
+                    DockerMetricsManager.PROM_TAG, "latest"
             );
             dmh.startMetrics(dashboardOptions);
 
