@@ -1,2 +1,5 @@
-- 7d594e7b (HEAD -> nb3-maint) fix docker setup logic
+- 50b2acda (HEAD -> nb3-maint) Issue #237
+- 3957223c Issue #198
+- 0866dde3 (origin/nb3-maint) backport fixes for docker setup
+- 7d594e7b fix docker setup logic
 - e36bcba9 backport docker container search fix
