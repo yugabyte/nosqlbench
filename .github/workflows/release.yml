@@ -102,7 +102,7 @@ jobs:
             echo "DOCKER_TAGS=nosqlbench/nosqlbench:${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
            else
             echo "PRERELEASE=false" >> $GITHUB_ENV
-            echo "DOCKER_TAGS=nosqlbench/nosqlbench:latest,nosqlbench/nosqlbench:${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
+            echo "DOCKER_TAGS=nosqlbench/nosqlbench:3x,nosqlbench/nosqlbench:${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
           fi
 
       - name: prepare Maven release
