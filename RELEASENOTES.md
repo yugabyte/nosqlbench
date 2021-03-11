@@ -1,5 +1,1 @@
-- 50b2acda (HEAD -> nb3-maint) Issue #237
-- 3957223c Issue #198
-- 0866dde3 (origin/nb3-maint) backport fixes for docker setup
-- 7d594e7b fix docker setup logic
-- e36bcba9 backport docker container search fix
+- 31192d1f (HEAD -> nb3-maint) add 3x docker tag for nb3 maintenance branch
