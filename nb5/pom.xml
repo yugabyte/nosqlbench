@@ -137,6 +137,24 @@
             <version>${revision}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.nosqlbench</groupId>
+            <artifactId>driver-ysql</artifactId>
+            <version>4.15.51-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.nosqlbench</groupId>
+            <artifactId>driver-ycql</artifactId>
+            <version>4.15.51-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.nosqlbench</groupId>
+            <artifactId>driver-ycql4</artifactId>
+            <version>4.15.51-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>
