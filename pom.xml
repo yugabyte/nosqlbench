@@ -53,7 +53,7 @@
         <module>driver-jms</module>
         <module>driver-ysql</module>
         <module>driver-ycql</module>
-
+        <module>driver-mysql</module>
         <!-- VIRTDATA MODULES -->
 
         <module>virtdata-api</module>

@@ -11,7 +11,7 @@
 		<relativePath>../mvn-defaults</relativePath>
 	</parent>
 
-	<artifactId>driver-ysql</artifactId>
+	<artifactId>driver-mysql</artifactId>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 
@@ -25,17 +25,12 @@
 			<artifactId>driver-jdbc</artifactId>
 			<version>4.15.51-SNAPSHOT</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 		<dependency>
-			<groupId>com.yugabyte</groupId>
-			<artifactId>jdbc-yugabytedb</artifactId>
-			<version>42.3.0</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.27</version>
 		</dependency>
-
- 		<dependency>
-		<groupId>org.postgresql</groupId>
-		<artifactId>postgresql</artifactId>
-		<version>42.2.14</version>
-		</dependency> 
-
 	</dependencies>
+
 </project>

@@ -13,6 +13,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>CLI for nosqlbench.</description>
+    <version>4.16.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -150,6 +151,12 @@
         <dependency>
             <groupId>io.nosqlbench</groupId>
             <artifactId>driver-ycql</artifactId>
+            <version>4.15.51-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.nosqlbench</groupId>
+            <artifactId>driver-mysql</artifactId>
             <version>4.15.51-SNAPSHOT</version>
         </dependency>
 

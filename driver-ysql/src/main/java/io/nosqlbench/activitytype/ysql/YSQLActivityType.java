@@ -1,6 +1,5 @@
 package io.nosqlbench.activitytype.ysql;
 
-import io.nosqlbench.activitytype.jdbc.api.JDBCActionDispenser;
 import io.nosqlbench.engine.api.activityapi.core.ActionDispenser;
 import io.nosqlbench.engine.api.activityapi.core.ActivityType;
 import io.nosqlbench.engine.api.activityimpl.ActivityDef;
@@ -11,7 +10,7 @@ public class YSQLActivityType implements ActivityType<YSQLActivity> {
 
     @Override
     public ActionDispenser getActionDispenser(YSQLActivity activity) {
-        return new JDBCActionDispenser(activity);
+        return new YSQLActionDispenser(activity);
     }
 
     @Override

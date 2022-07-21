@@ -67,6 +67,7 @@ public abstract class JDBCActivity extends SimpleActivity {
     @Override
     public void initActivity() {
         LOGGER.debug("initializing activity: " + getActivityDef().getAlias());
+        
         bindTimer = ActivityMetrics.timer(getActivityDef(), "bind");
         resultTimer = ActivityMetrics.timer(getActivityDef(), "result");
         resultSuccessTimer = ActivityMetrics.timer(getActivityDef(), "result-success");
