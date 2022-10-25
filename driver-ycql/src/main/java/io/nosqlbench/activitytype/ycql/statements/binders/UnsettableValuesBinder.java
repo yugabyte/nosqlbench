@@ -41,6 +41,8 @@ public class UnsettableValuesBinder implements ValuesArrayBinder<PreparedStateme
                         ByteBuffer serialized = codec.serialize(value, protocolVersion);
                         boundStmt.setBytesUnsafe(i,serialized);
                     }
+                } else {
+                    boundStmt.unset(i);
                 }
             }
             return boundStmt;

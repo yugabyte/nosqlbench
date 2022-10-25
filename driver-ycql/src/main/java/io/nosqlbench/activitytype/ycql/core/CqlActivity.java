@@ -190,6 +190,7 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
             Optional<ConsistencyLevel> cl = stmtDef.getOptionalStringParam("cl", String.class).map(ConsistencyLevel::valueOf);
             Optional<ConsistencyLevel> serial_cl = stmtDef.getOptionalStringParam("serial_cl").map(ConsistencyLevel::valueOf);
             Optional<Boolean> idempotent = stmtDef.getOptionalStringParam("idempotent", Boolean.class);
+            int batchSize = stmtDef.getParamOrDefault("batchsize", 1);
 
             StringBuilder psummary = new StringBuilder();
 
@@ -234,7 +235,7 @@ public class CqlActivity extends SimpleActivity implements Activity, ActivityDef
                     .orElse(CqlBinderTypes.DEFAULT);
 
                 template = new ReadyCQLStatementTemplate(fconfig, binderType, getSession(), prepare, ratio,
-                    parsed.getName());
+                    parsed.getName(), batchSize);
             } else {
                 SimpleStatement simpleStatement = new SimpleStatement(stmtForDriver);
                 cl.ifPresent((conlvl) -> {
