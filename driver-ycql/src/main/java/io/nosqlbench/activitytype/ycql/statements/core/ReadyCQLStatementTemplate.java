@@ -40,9 +40,10 @@ public class ReadyCQLStatementTemplate {
     private Writer resultCsvWriter;
     private List<String> startTimers;
     private List<String> stopTimers;
+    int batchSize;
 
     public ReadyCQLStatementTemplate(Map<String, Object> fconfig, CqlBinderTypes binderType, Session session,
-                                     PreparedStatement preparedStmt, long ratio, String name) {
+                                     PreparedStatement preparedStmt, long ratio, String name, int batchSize) {
         this.session = session;
         this.name = name;
         ValuesArrayBinder<PreparedStatement, Statement> binder = binderType.get(session);
@@ -54,6 +55,7 @@ public class ReadyCQLStatementTemplate {
             binder
         );
         this.ratio = ratio;
+        this.batchSize = batchSize;
     }
 
     public void addTimerStart(String name) {
@@ -89,7 +91,7 @@ public class ReadyCQLStatementTemplate {
     }
 
     public ReadyCQLStatement resolve() {
-        return new ReadyCQLStatement(template.resolveBindings(), ratio, name)
+        return new ReadyCQLStatement(template.resolveBindings(), ratio, name, batchSize)
             .withMetrics(this.successTimer, this.errorTimer, this.rowsFetchedHisto)
             .withResultSetCycleOperators(resultSetCycleOperators)
             .withRowCycleOperators(rowCycleOperators)

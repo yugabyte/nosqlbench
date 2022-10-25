@@ -2,16 +2,21 @@ package io.nosqlbench.activitytype.ycql.statements.core;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Timer;
+import com.datastax.driver.core.BatchStatement;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
 import io.nosqlbench.activitytype.ycql.api.ResultSetCycleOperator;
 import io.nosqlbench.activitytype.ycql.api.RowCycleOperator;
+import io.nosqlbench.activitytype.ycql.core.CQLBindHelper;
 import io.nosqlbench.engine.api.metrics.ThreadLocalNamedTimers;
 import io.nosqlbench.virtdata.core.bindings.ContextualArrayBindings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,11 +38,13 @@ public class ReadyCQLStatement {
     private Writer resultCsvWriter;
     private List<String> startTimers;
     private List<String> stopTimers;
+    int batchSize;
 
-    public ReadyCQLStatement(ContextualArrayBindings<?, Statement> contextualBindings, long ratio, String name) {
+    public ReadyCQLStatement(ContextualArrayBindings<?, Statement> contextualBindings, long ratio, String name, int batchSize) {
         this.contextualBindings = contextualBindings;
         this.ratio = ratio;
         this.name = name;
+        this.batchSize = batchSize;
     }
 
     public ReadyCQLStatement withMetrics(Timer successTimer, Timer errorTimer, Histogram rowsFetchedHisto) {
@@ -47,8 +54,29 @@ public class ReadyCQLStatement {
         return this;
     }
 
-    public Statement bind(long value) {
-        return contextualBindings.bind(value);
+    public Statement bind(long cycle) {
+        if (batchSize > 1) {
+            BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
+            // Get all the BoundStatements and rebind partition key values of all subsequent
+            // statements with the first one
+            BoundStatement bStmt = (BoundStatement) contextualBindings.bind(cycle);
+            batch.add(bStmt);
+
+            int[] pkIndices = bStmt.preparedStatement().getRoutingKeyIndexes();
+            ColumnDefinitions colDefs = bStmt.preparedStatement().getVariables();
+
+            for (int i = 1; i < batchSize; i++) {
+                BoundStatement bStmtNext = (BoundStatement) contextualBindings.bind(cycle * batchSize + i);
+                for (int j = 0; j < pkIndices.length; j++) {
+                    bStmtNext = CQLBindHelper.bindStatement(
+                        bStmtNext, colDefs.getName(pkIndices[j]), bStmt.getObject(pkIndices[j]), colDefs.getType(pkIndices[j]).getName());
+                }
+                batch.add(bStmtNext);
+            }
+            return batch;
+        } else {
+            return contextualBindings.bind(cycle);
+        }
     }
 
     public ResultSetCycleOperator[] getResultSetOperators() {
@@ -71,6 +99,13 @@ public class ReadyCQLStatement {
             StringBuilder sb = new StringBuilder();
             sb.append("(simple) ");
             return getQueryStringValues(value, queryString, sb);
+        } else if (stmt instanceof BatchStatement) {
+            StringBuffer queryString = new StringBuffer("BEGIN BATCH");
+            Collection<Statement> stmts = ((BatchStatement)stmt).getStatements();
+            for(int i = 0; i < stmts.size(); i++) {
+                queryString.append(getQueryString(value * batchSize + i));
+            }
+            queryString.append("APPLY BATCH");
         }
         if (stmt instanceof String) {
             return (String)stmt;
@@ -88,6 +123,9 @@ public class ReadyCQLStatement {
         for (Object o : all) {
             sb.append(delim);
             delim=",";
+            if (o == null) {
+                sb.append("<null>");
+            } else
             sb.append(o.toString());
         }
         sb.append("]");
