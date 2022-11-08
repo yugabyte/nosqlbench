@@ -59,7 +59,7 @@ public class ReadyCQLStatement {
             BatchStatement batch = new BatchStatement(BatchStatement.Type.UNLOGGED);
             // Get all the BoundStatements and rebind partition key values of all subsequent
             // statements with the first one
-            BoundStatement bStmt = (BoundStatement) contextualBindings.bind(cycle);
+            BoundStatement bStmt = (BoundStatement) contextualBindings.bind(cycle * batchSize);
             batch.add(bStmt);
 
             int[] pkIndices = bStmt.preparedStatement().getRoutingKeyIndexes();
