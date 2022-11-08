@@ -1,13 +1,15 @@
 package io.nosqlbench.activitytype.ysql;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import io.nosqlbench.activitytype.jdbc.api.JDBCActivity;
 import io.nosqlbench.engine.api.activityimpl.ActivityDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.postgresql.ds.PGSimpleDataSource;
 
 import javax.sql.DataSource;
-import java.util.Arrays;
+import java.util.Properties;
 
 public class YSQLActivity extends JDBCActivity {
     private static final Logger LOGGER = LogManager.getLogger(YSQLActivity.class);
@@ -26,37 +28,43 @@ public class YSQLActivity extends JDBCActivity {
 
     @Override
     protected DataSource newDataSource() {
-        PGSimpleDataSource ds = new PGSimpleDataSource();
-
-        // serverName is required
         String serverName = getParams().
             getOptionalString("serverName", "localhost").get();
 
-        // portNumber, databaseName, user, password are optional
         Integer portNumber = getParams().getOptionalInteger("portNumber").orElse(5433);
-        String databaseName = getParams().getOptionalString("databaseName").orElse(null);
+        Integer maxPoolSize = getParams().getOptionalInteger("maxPoolSize").orElse(10);
+        String databaseName = getParams().getOptionalString("databaseName").orElse("yugabyte");
         String user = getParams().getOptionalString("user").orElse(null);
         String password = getParams().getOptionalString("password").orElse(null);
 
-        ds.setServerNames(new String[]{serverName});
-        ds.setPortNumbers(new int[]{portNumber});
-        if (databaseName != null) {
-            ds.setDatabaseName(databaseName);
-        }
+        Properties poolProperties = new Properties();
+        poolProperties.setProperty("dataSourceClassName", "com.yugabyte.ysql.YBClusterAwareDataSource");
+        //the pool will create  10 connections to the servers
+        poolProperties.setProperty("maximumPoolSize", String.valueOf(maxPoolSize));
+        poolProperties.setProperty("dataSource.serverName", serverName);
+        poolProperties.setProperty("dataSource.portNumber", String.valueOf(portNumber));
+        poolProperties.setProperty("dataSource.databaseName", databaseName);
         if (user != null) {
-            ds.setUser(user);
+            poolProperties.setProperty("dataSource.user", "yugabyte");
         }
         if (password != null) {
-            ds.setPassword(password);
+            poolProperties.setProperty("dataSource.password", "yugabyte");
+        }
+        // If you want to provide additional end points
+        String additionalEndpoints = getParams().getOptionalString("additionalEndpoints").orElse(null);
+        if (additionalEndpoints != null) {
+            poolProperties.setProperty("dataSource.additionalEndpoints", additionalEndpoints);
         }
 
-        LOGGER.debug("Final DataSource fields:"
-            + " serverNames=" + Arrays.toString(ds.getServerNames())
-            + " portNumbers=" + Arrays.toString(ds.getPortNumbers())
-            + " databaseName=" + ds.getDatabaseName()
-            + " user=" + ds.getUser()
-            + " password=" + ds.getPassword());
+        // If you want to load balance between specific geo locations using topology keys
+        String topologyKeys = getParams().getOptionalString("topologyKeys").orElse(null);
+        if (topologyKeys != null) {
+            poolProperties.setProperty("dataSource.topologyKeys", topologyKeys);
+        }
 
-        return ds;
+
+        HikariConfig config = new HikariConfig(poolProperties);
+        config.validate();
+        return new HikariDataSource(config);
     }
 }
