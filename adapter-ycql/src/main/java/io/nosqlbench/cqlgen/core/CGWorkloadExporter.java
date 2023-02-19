@@ -125,7 +125,7 @@ public class CGWorkloadExporter implements BundledApp {
         Yaml yaml = new Yaml();
         CGWorkloadExporter exporter;
 
-        Content<?> cqlgencfg = NBIO.local().prefix("cqlgen").name("cqlgen").extension("conf").first().orElseThrow();
+        Content<?> cqlgencfg = NBIO.local().searchPrefixes("cqlgen").pathname("cqlgen").extensionSet("conf").first().orElseThrow();
         if (cqlgencfg == null) {
             throw new RuntimeException("Unable to load cqlgen.conf");
         }
