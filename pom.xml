@@ -57,6 +57,7 @@
         <module.adapter-diag>adapter-diag</module.adapter-diag>
         <module.adapter-stdout>adapter-stdout</module.adapter-stdout>
         <module.adapter-cqld4>adapter-cqld4</module.adapter-cqld4>
+        <module.adapter-ycql>adapter-ycql</module.adapter-ycql>
         <module.adapter-http>adapter-http</module.adapter-http>
         <module.adapter-tcp>adapter-tcp</module.adapter-tcp>
         <module.adapter-dynamodb>adapter-dynamodb</module.adapter-dynamodb>
@@ -100,6 +101,7 @@
         <module>adapter-diag</module>
         <module>adapter-stdout</module>
         <module>adapter-cqld4</module>
+        <module>adapter-ycql</module>
         <module>adapter-http</module>
         <module>adapter-tcp</module>
         <module>adapter-dynamodb</module>
