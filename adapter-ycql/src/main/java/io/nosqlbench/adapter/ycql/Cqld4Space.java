@@ -18,14 +18,15 @@ package io.nosqlbench.adapter.ycql;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
 import com.datastax.oss.driver.api.core.config.OptionsMap;
 import com.datastax.oss.driver.api.core.config.TypedDriverOption;
-import com.datastax.oss.driver.internal.core.config.composite.CompositeDriverConfigLoader;
+import com.datastax.oss.driver.api.core.context.DriverContext;
+import com.datastax.oss.driver.internal.core.context.InternalDriverContext;
 import com.datastax.oss.driver.internal.core.loadbalancing.helper.NodeFilterToDistanceEvaluatorAdapter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.nosqlbench.adapter.ycql.optionhelpers.OptionHelpers;
 import io.nosqlbench.api.config.standard.*;
 import io.nosqlbench.api.content.Content;
@@ -61,7 +62,7 @@ public class Cqld4Space implements AutoCloseable {
         for (TypedDriverOption<?> builtin : builtins) {
             String path = builtin.getRawOption().getPath();
             Class<?> rawType = builtin.getExpectedType().getRawType();
-            driverOpts.add(Param.optional("driver." + path, rawType));
+            driverOpts.add(Param.optional("datastax-java-driver." + path, rawType));
         }
         return driverOpts.asReadOnly();
     }
@@ -82,18 +83,23 @@ public class Cqld4Space implements AutoCloseable {
         // add user-provided parameters
         NBConfiguration driverCfg = getDriverOptionsModel().extractConfig(cfg);
         if (!driverCfg.isEmpty()) {
-            Map<String, Object> remapped = new LinkedHashMap<>();
-            driverCfg.getMap().forEach((k, v) -> remapped.put(k.substring("driver.".length()), v));
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String remappedViaSerdesToSatisfyObtuseConfigAPI = gson.toJson(remapped);
-            DriverConfigLoader userProvidedOptions = DriverConfigLoader.fromString(remappedViaSerdesToSatisfyObtuseConfigAPI);
-            dcl = new CompositeDriverConfigLoader(dcl, userProvidedOptions);
+            StringBuffer configStr = new StringBuffer();
+            configStr.append("{ ");
+            driverCfg.getMap().forEach((k, v) -> 
+            {
+                configStr.append(k);
+                configStr.append(" = ");
+                configStr.append(v);
+                configStr.append("\n");
+            });
+            configStr.append(" }");
+            DriverConfigLoader userProvidedOptions = DriverConfigLoader.fromString(configStr.toString());
+            dcl = DriverConfigLoader.compose(dcl, userProvidedOptions);
         }
 
         // add referenced config from 'cfg' activity parameter
         DriverConfigLoader cfgDefaults = resolveConfigLoader(cfg).orElse(DriverConfigLoader.fromMap(OptionsMap.driverDefaults()));
-        dcl = new CompositeDriverConfigLoader(dcl, cfgDefaults);
-
+        dcl = DriverConfigLoader.compose(dcl, cfgDefaults);
         builder.withConfigLoader(dcl);
 
         int port = cfg.getOrDefault("port", 9042);
@@ -115,9 +121,9 @@ public class Cqld4Space implements AutoCloseable {
             if (contactPointsOption.isPresent()) {
                 builder.addContactPoints(contactPointsOption.get());
                 Optional<String> localdc = cfg.getOptional("localdc");
-                builder.withLocalDatacenter(localdc.orElseThrow(
-                    () -> new BasicError("Starting with driver 4.0, you must specify the local datacenter name with any specified contact points. Example: (use caution) localdc=datacenter1")
-                ));
+                if (localdc.isPresent()) {
+                    builder.withLocalDatacenter(localdc.get());
+                }
             } else {
                 builder.addContactPoints(List.of(new InetSocketAddress("localhost", port)));
             }
@@ -204,6 +210,24 @@ public class Cqld4Space implements AutoCloseable {
         }
 
         CqlSession session = builder.build();
+        DriverContext context = session.getContext();
+        DriverConfig config = context.getConfig();
+        DriverExecutionProfile execProf = config.getDefaultProfile();
+        String lbPolicyClass = execProf.getString(DefaultDriverOption.LOAD_BALANCING_POLICY_CLASS);
+        int remPoolSz = execProf.getInt(DefaultDriverOption.CONNECTION_POOL_REMOTE_SIZE);
+        String localDC = ((InternalDriverContext)context).getLocalDatacenter("default");
+        if (localDC == null) {
+            if (execProf.isDefined(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER)) {
+                localDC = execProf.getString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER);
+            } else {
+                localDC = "<not set>";
+            }
+        }
+        String cl = execProf.getString(DefaultDriverOption.REQUEST_CONSISTENCY);
+        System.out.println("policy class = " + lbPolicyClass +
+                           " localdc = " + localDC +
+                           " remote pool size = " + remPoolSz +
+                           " cl (session level) = " + cl);
         return session;
     }
 

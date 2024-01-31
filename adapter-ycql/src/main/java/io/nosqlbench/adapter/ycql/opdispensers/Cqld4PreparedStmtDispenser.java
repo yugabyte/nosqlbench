@@ -84,6 +84,7 @@ public class Cqld4PreparedStmtDispenser extends Cqld4BaseOpDispenser {
         BoundStatement boundStatement;
         try {
             boundStatement = (BoundStatement) stmtFunc.apply(cycle);
+            if (cycle == 1) System.out.println("cl (statement level) " + boundStatement.getConsistencyLevel());
             return new Cqld4CqlPreparedStatement(
                 boundSession,
                 boundStatement,
